@@ -34,5 +34,5 @@ jobs:
     # - run: npm test
     - name: Deploy static page
       run: |
-	npm install -g serve
+        npm install -g serve
 	serve -s build
