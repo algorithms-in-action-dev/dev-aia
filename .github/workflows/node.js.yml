@@ -6,30 +6,33 @@ name: Node.js CI
 on:
   workflow_dispatch:
   # push:
-  #   branches:
-  #     - main
+  #   branches: [ "main" ]
+  # pull_request:
+  #   branches: [ "main" ]
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        node-version: [18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     steps:
     - name: Checkout
       uses: actions/checkout@v3
       
-    - name: Set up Node.js
+    - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
-        node-version: 18.x
+        node-version: ${{ matrix.node-version }}
         cache: 'npm'
-
-    - name: Install dependencies and build
+    # - run: npm ci # assumes package.json etc comitted and frozen
+    - name: Build
       run: |
         npm install
         npm run build --if-present
-
-    - name: Deploy to GitHub Pages
+    # - run: npm test
+    - name: Deploy static page
       run: |
-        npm install -g gh-pages
-        gh-pages -d build -b main
-
+        npm install -g serve 
+        serve -s build
