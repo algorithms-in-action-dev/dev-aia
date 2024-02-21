@@ -1,0 +1,253 @@
+@import './global.scss';
+
+@mixin borderSeparate {
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--system-border);
+}
+
+$headerOffset: 16px;
+$headerHeight: 30px;
+
+.settingsContainer {
+  // Position
+  position: absolute;
+  display: block;
+  z-index: 10;
+  right: calc($headerOffset/2);
+  top: $headerHeight + $headerOffset;
+  
+  // Dimension
+  max-height: calc(100vh - 62px - 100px);
+  width: 250px;
+
+  // Styling
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--top-setting-bg);
+  border: 1px solid #ccc;
+  border-color: var(--system-border);
+  @include border-radius(4px);
+  // filter: drop-shadow(4px 4px 4px rgba(0, 0, 0, 0.1)); 
+  padding: 16px;
+  font-size: 0.95em;
+}
+
+.setContainer {
+  @include borderSeparate;
+
+  .label {
+    margin: 4px 0 8px;
+    text-transform: uppercase;
+    font-size: 0.78em;
+    font-weight: 500;
+    color: var(--top-setting-label);
+
+  }
+}
+
+.fontSize {
+  display: flex;
+  justify-content: space-between;
+  $btnRad: 8px;
+
+  .fontBtn {
+    @include removeBtnStyling;
+    cursor: pointer;
+    flex: 1;
+    padding: 6px 0;
+    background-color: var(--top-setting-btn-bg);    
+    display: flex;
+    justify-content: center;
+
+    svg {
+      path {
+        fill: var(--top-setting-btn);
+      }
+    }
+
+  }
+
+  .fontBtn:active {
+    background-color: var(--top-setting-btn-bg-active);
+
+  }
+
+
+  .small {
+
+    svg {
+      height: 1.1em;
+      width: 1.1em;
+    }
+  }
+
+
+  .big {
+    svg {
+      height: 1.3em;
+      width: 1.3em;
+    }
+  }
+
+  .label {
+
+  }
+
+}
+
+$btnSize: 48px;
+$outerBorder: 2px;
+
+.algoCol {
+  display: grid;
+  grid-template-columns: repeat(4, $btnSize);
+  grid-gap: 12px;
+  grid-auto-rows: minmax($btnSize, auto);
+  justify-content: center;
+  align-content: center;
+
+  .colorBtn {
+    @include removeBtnStyling;
+    border: $outerBorder solid var(--top-setting-bg);
+    display:flex;
+    @include border-radius(50%);
+    cursor: pointer;
+    padding: $outerBorder;
+    height: $btnSize;
+    width: $btnSize;
+
+    .left {
+      @include border-radii($btnSize,0,0,$btnSize);
+      height: $btnSize - ($outerBorder * 4);
+      width: calc($btnSize /2) - ($outerBorder * 2);
+    }
+
+    .right {
+      height: $btnSize - ($outerBorder * 4);
+      width: calc($btnSize /2) - ($outerBorder * 2);
+      @include border-radii(0,$btnSize,$btnSize,0);
+
+    }
+    .top-left {
+    
+      @include border-radii($btnSize,0,0,0);
+      height: calc($btnSize/2) - ($outerBorder * 4);
+      width: calc($btnSize/2)  - ($outerBorder * 2);
+    }
+    .top-right {
+      
+      @include border-radii(0,$btnSize,0,0);
+      height: calc($btnSize/2) - ($outerBorder * 4);
+      width: calc($btnSize/2)  - ($outerBorder * 2);
+    }
+    .bottom-right {
+      
+      height: calc($btnSize/2) - ($outerBorder * 4);
+      width: calc($btnSize/2)  - ($outerBorder * 2);
+      @include border-radii(0,0,$btnSize,0);
+
+    }
+    .bottom-left {
+      
+      height: calc($btnSize/2) - ($outerBorder * 4);
+      width: calc($btnSize/2)  - ($outerBorder * 2);
+      @include border-radii(0,0,0,$btnSize);
+
+    }
+
+  }
+
+  .active {
+    border: $outerBorder solid $sigBlue;
+  }
+
+
+}
+
+// asdassda
+.settingFooter {
+  display: flex;
+
+  .saveBtn {
+    @include removeBtnStyling;
+    padding: 8px 0;
+    flex: 1;
+    cursor: pointer;
+    text-transform: uppercase;
+    background-color: var(--top-setting-btn-bg);
+    font-size: 0.82em;
+    color: var(--top-setting-btn);
+
+  }
+
+  .saveBtn:active {
+    background-color: var(--top-setting-btn-bg-active);
+
+  }
+}
+
+
+.red {
+  background: #ee0970;
+}
+
+.yellow {
+  background: #F1F511;
+}
+
+.green {
+  background: #059847;
+}
+
+.pink {
+  background: #e42fd5;
+}
+
+.cyan {
+  background: #0d9eae;
+}
+
+.blue {
+  background: #2289ff;
+}
+
+.black {
+  background: #505050;
+}
+
+.grey {
+  background: #BBBBBB;
+}
+
+.purple {
+  background: #9f2fe4;
+}
+
+.white {
+  background: #cecece;
+}
+.positive1{
+  background: #83d489;
+}
+.positive2{
+  background: #258bff;
+}
+.negative1{
+  background: #e85c49;
+}
+.negative2{
+  background: #ec0a70;
+}
+.hint1{
+  background: #fbd651;
+}
+.hint2{
+  background: #f2c988;
+}
+.back-up1{
+  background: #4768de;
+}
+.back-up2{
+  background: #308f45;
+}

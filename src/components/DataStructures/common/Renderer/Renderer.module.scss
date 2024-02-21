@@ -1,0 +1,26 @@
+@import "../stylesheet/index";
+
+.renderer {
+  position: relative;
+  flex: 1;
+  flex-direction: column;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 0;
+  padding-top: 35px;
+
+  &:first-child {
+    border-top: none;
+  }
+
+  .title {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: $theme-light;
+    color: $color-font;
+    padding: 4px 6px;
+    font-size: $font-size-large;
+  }
+}

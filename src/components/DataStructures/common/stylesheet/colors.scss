@@ -1,0 +1,42 @@
+$theme-dark: #242424;
+$theme-normal: #393939;
+$theme-light: #505050;
+$color-font: #cecece;
+
+$color-shadow: rgba(#000000, .2);
+$color-overlay: rgba(#ffffff, .1);
+
+$color-alert: #f3bd58;
+$color-selected: #067AFF;
+$color-patched: #c51162;
+$color-sorted: rgb(158, 157, 158);
+$color-highlight: #29d;
+
+$color-active: #00e676;
+
+$color-blue: #067AFF;
+$color-red: #d21010;
+$color-purple: #c735da;
+$color-green: #4bb454;
+$color-yellow: #b3b605;
+$color-lightgreen: #2ec752;
+
+:export {
+  themeDark: $theme-dark;
+  themeNormal: $theme-normal;
+  themeLight: $theme-light;
+  colorFont: $color-font;
+  colorShadow: $color-shadow;
+  colorOverlay: $color-overlay;
+  colorAlert: $color-alert;
+  colorSelected: $color-selected;
+  colorPatched: $color-patched;
+  colorHighlight: $color-highlight;
+  colorActive: $color-active;
+  colorBlue: $color-blue;
+  colorRed: $color-red;
+  colorPurple:$color-purple;
+  colorGreen:$color-green;
+  colorYellow:$color-yellow;
+  colorLightGreen:$color-lightgreen;
+}

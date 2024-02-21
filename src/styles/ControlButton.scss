@@ -1,0 +1,129 @@
+@import './global.scss';
+
+// $playBtn: $sigBlue;
+
+.sliderContainer {
+  display: flex;
+  background-color: var(--mid-control-slider-bg);
+  padding: 0 16px;
+  @include border-radius(16px);
+
+  .slider {
+    width: 160px;
+    height: 30px;
+    margin-top: 2px;
+  }
+
+}
+
+.btn {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+  margin: 0px 8px;
+
+}
+
+.btnGone {
+  display: none;
+
+}
+
+.btnPresent {
+  display: block;
+}
+
+// Button Active Style
+.btnActive {
+  @extend .btn;
+  height: 32px;
+  width: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  svg {
+    height: 12px;
+    width: 12px;
+    path {
+      fill: var(--mid-control-param-btn-active);
+    }
+  }
+}
+
+.btnActive:hover {
+  transition: .4s;
+  background: var(--mid-control-param-btn-bg-hover) !important;
+  @include border-radius(14px);
+}
+.btnActive:active {
+  transition: .2s;
+  background: var(--mid-control-param-btn-bg-active) !important;
+  @include border-radius(14px);
+}
+
+.btnDisabled {
+  @extend .btnActive;
+  cursor: not-allowed !important;
+
+  svg {
+    path {
+      fill: var(--mid-control-param-btn-disabled) !important;
+    }
+  }
+
+}
+
+.btnDisabled:hover {
+  background: none !important;
+}
+.btnDisabled:active {
+  background: none !important;
+}
+
+.prev {
+  svg {
+    transform: rotate(90deg);
+  }
+}
+
+.next {
+  svg {
+    transform: rotate(-90deg); 
+  }
+}
+
+.play {
+  svg {
+    path {
+      fill: var(--mid-control-param-btn-active-col);
+      
+    }
+    
+  }
+}
+
+.pause {
+  svg {
+    path {
+      fill: var(--mid-control-param-btn-active-col);
+    }
+  }
+}
+
+.controlButtons {
+  display: flex;
+  background-color: var(--mid-control-btn-bg);
+  @include border-radius(16px);
+
+}
+
+
+
+
+
+
