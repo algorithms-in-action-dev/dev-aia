@@ -2,7 +2,7 @@
   "name": "aia",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://algorithms-in-action.github.io",
+  "homepage": "https://algorithms-in-action-dev.github.io",
   "scripts": {
     "build": "run-script-os",
     "build:default": "export SET NODE_OPTIONS=--openssl-legacy-provider && react-scripts build",
@@ -51,6 +51,7 @@
     "@testing-library/user-event": "^14.4.3",
     "denque": "^2.0.1",
     "framer-motion": "^4.0.0",
+    "gh-pages": "^6.1.1",
     "lodash": "^4.17.21",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
