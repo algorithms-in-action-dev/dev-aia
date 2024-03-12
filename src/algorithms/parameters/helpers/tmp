@@ -1,2 +1,0 @@
-// This is now used for initialisation in EuclideanMatrixParams so it needs
-// to be outside that function and needs extra parameters passed in
