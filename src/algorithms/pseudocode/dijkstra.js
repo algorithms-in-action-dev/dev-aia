@@ -16,7 +16,8 @@ Shortest(G, s) //Given a graph G find a shortest path from start node s \\B 1
                     remove next node n from Nodes and finalise it \\Ref Next_node
                     // The Parent of n has now been determined
                     if task_completed(n) \\Ref Completed
-                    \\Expl{ Have we found an end node?
+                    \\Expl{ Have we found an end node or explored the
+                            whole graph component connected to s? 
                     \\Expl} 
                     \\In{
                         return \\B 3
@@ -31,8 +32,10 @@ Shortest(G, s) //Given a graph G find a shortest path from start node s \\B 1
                         update Nodes, Parent etc with n & m \\Ref UpdateNodes
                     \\In}
                 \\In}
-                \\Expl{ The whole component of the graph connected to s has been
-                        explored. If we were searching for an end node we have failed
+                return \\B 5a
+                \\Expl{ The whole graph has been
+                        explored and all shortest paths have been found.
+                        If we were searching for an end node we have failed
                         and some indication of this should be returned.
                 \\Expl}
             \\In}
@@ -70,7 +73,7 @@ Shortest(G, s) //Given a graph G find a shortest path from start node s \\B 1
 
 \\Code{
         UpdateNodes
-            if Cost[n] + weight(n,m) < Cost[m] \\B 11
+            if m is in Nodes PQ and Cost[n] + weight(n,m) < Cost[m] \\B 11
             \\Expl{ The path from s to n to m is shorter than the current
                 shortest known path from s to m. If Cost[m] = infinity
                 it will be replaced with a finite weight, implicitly moving
