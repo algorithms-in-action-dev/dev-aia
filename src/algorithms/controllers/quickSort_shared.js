@@ -61,8 +61,9 @@ const QS_BOOKMARKS = {
   MEDIAN3_swap_A_idx_right_with_A_idx_mid: 16,
   MEDIAN3_second_swap_A_idx_left_with_A_idx_mid: 17,
   MEDIAN3_swap_A_idx_mid_with_A_idx_right_minus_1: 18,
-  SHARED_done_qs: 19,
+  SHARED_done_qs: 19, // in expanded rec calls 
   SHARED_skip_step : 19, // idk how this works
+  SHARED_done_top_level_qs: 50, // Done at end of top level
   MEDIAN3_first_if_A_idx_left_greater_A_idx_right: 20,
   MEDIAN3_if_A_idx_mid_greater_A_idx_right: 21,
   MEDIAN3_second_if_A_idx_left_greater_A_idx_right: 22,
@@ -295,7 +296,7 @@ export function run_QS(is_qs_median_of_3) {
               }
             },
             [n1, n2, real_stack, finished_stack_frames, i, j, pivot_index, depth],
-          );
+          depth);
         }
 
         /////
@@ -311,7 +312,7 @@ export function run_QS(is_qs_median_of_3) {
               args_array = [real_stack, finished_stack_frames, i, j, pivot_index, depth]
             }
 
-            chunker.add(bookmark, f, args_array)
+            chunker.add(bookmark, f, args_array, depth)
           }
         }
 
@@ -461,7 +462,7 @@ export function run_QS(is_qs_median_of_3) {
         chunker.add(QS_BOOKMARKS.SHARED_if_left_less_right, refresh_stack, [
           real_stack,
           finished_stack_frames,
-        ]);
+        ], depth);
       }
 
       if (left < right) {
@@ -471,7 +472,7 @@ export function run_QS(is_qs_median_of_3) {
           chunker.add(QS_BOOKMARKS.SHARED_quicksort_left_to_i_minus_1, refresh_stack, [
             real_stack,
             finished_stack_frames,
-          ]);
+          ], depth);
         } else {
           // this part animates the recursion when it is collapsed
           // can also add a function to animate the swap actions in one step here instead of in the partition function
@@ -484,7 +485,7 @@ export function run_QS(is_qs_median_of_3) {
               }
             },
             [left, pivot],
-          );
+          depth);
         }
 
         QuickSort(a, left, pivot - 1, depth + 1);
@@ -493,7 +494,7 @@ export function run_QS(is_qs_median_of_3) {
           chunker.add(QS_BOOKMARKS.SHARED_quicksort_i_plus_1_to_right, refresh_stack, [
             real_stack,
             finished_stack_frames,
-          ]);
+          ], depth);
         } else {
           chunker.add(
             QS_BOOKMARKS.SHARED_quicksort_left_to_i_minus_1,
@@ -503,7 +504,7 @@ export function run_QS(is_qs_median_of_3) {
               }
             },
             [pivot, right],
-          );
+          depth);
         }
         QuickSort(a, pivot + 1, right, depth + 1);
       }
@@ -520,10 +521,17 @@ export function run_QS(is_qs_median_of_3) {
             vis.array.sorted(l);
           },
           [left],
-        );
+        depth);
       }
 
       finished_stack_frames.push(real_stack.pop());
+
+      // Add "do nothing" chunk for the "Done" line
+      chunker.add(
+        QS_BOOKMARKS.SHARED_done_top_level_qs,
+        (vis) => { },
+        [],
+      0);
 
       return a; // Facilitates testing
     }
@@ -539,15 +547,18 @@ export function run_QS(is_qs_median_of_3) {
         vis.array.setStack([]); // used for a custom stack visualisation
       },
       [entire_num_array],
-    );
+    0);
 
     const result = QuickSort(entire_num_array, 0, entire_num_array.length - 1, 0);
 
     assert(real_stack.length === 0);
 
     // Fade out final node
+    // Hmm, doesn't seem to do anything and seems never reached if
+    // recursive calls not expanded
     chunker.add(
-      QS_BOOKMARKS.SHARED_done_qs,
+      QS_BOOKMARKS.SHARED_done_top_level_qs,
+      // QS_BOOKMARKS.SHARED_done_qs,
       (vis, idx) => {
         vis.array.fadeOut(idx);
         // fade all elements back in for final sorted state
@@ -558,7 +569,7 @@ export function run_QS(is_qs_median_of_3) {
         vis.array.setStack(derive_stack(real_stack, finished_stack_frames));
       },
       [entire_num_array.length - 1],
-    );
+    0);
 
     return result;
   }
