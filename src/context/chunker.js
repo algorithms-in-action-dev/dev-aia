@@ -163,7 +163,6 @@ export default class {
   goBackTo(chunkNum) {
     this._inPrevState = true;
     this.visualisers = this.init();
-    // console.log(['prev()', chunkNum]);
     for (let i = 0; i <= chunkNum; i += 1) {
       this.doChunk(i);
     }
