@@ -1,4 +1,8 @@
-// XXX add support for multiple end nodes
+// Copied and modified from dijkstra.js (might have been better to put
+// common code in a single file - they are very similar and could be
+// made more-so).
+// If we add support for multiple end nodes elsewhere, we may need to
+// check there is a single end node here
 import GraphTracer from '../../components/DataStructures/Graph/GraphTracer';
 import Array2DTracer from '../../components/DataStructures/Array/Array2DTracer';
 import {colors} from './graphSearchColours';
@@ -47,10 +51,6 @@ export default {
     const MCOST = 2;
     const PAR = 3;
     const FCOST = 4;
-    // Dikstra version
-    // const PAR = 1;
-    // const MCOST = 2;
-    // const FCOST = 3;
     
     // Create a set to keep track of visited vertices
     const visited = new Set();  
@@ -152,10 +152,18 @@ export default {
       finalCosts.push(dashStr);
     }
 
+    // XXX would be nice to make the size of the table a bit smaller by
+    // default, and a bit higher up. How to do it is a mystery to me.
+    // vis.array.getRendererClass().zoom can be set but does nothing
+    // but in src/components/DataStructures/Array/Array2DRenderer/index.js
+    // you can change scale(${this.zoom}) to scale(0.8), for example,
+    // but then you can't change the zoom (seems like this.zoom may be
+    // null/undefined by default)
     chunker.add(
       5,
       (vis, v) => {
         vis.array.set(v, algNameStr);
+        vis.array.getRendererClass().zoom = 8;
       },
       [[nodes, heuristics, minCosts, parents, finalCosts], 0]
     );
@@ -289,7 +297,8 @@ export default {
       if (currentVertex === null // || currentVertex === end
         || cost[currentVertex] === Infinity) {
         // terminate without finding end node
-        // XXX check code is ok if currentVertex === null???
+        // currentVertex should never be null (?) but cost may be
+        // infinite
         chunker.add(3);
         // return
         break; 
@@ -299,7 +308,7 @@ export default {
         chunker.add(3, 
           (vis, c_nodes_etc) => {
                 // remove n, add start and end
-                vis.array.set(c_nodes_etc, 'BFS');
+                vis.array.set(c_nodes_etc, algNameStr);
                 vis.array.assignVariable('n', 2, null);
                 vis.array.assignVariable('end', 2, end + 1);
                 vis.array.assignVariable('start', 2, start + 1);
