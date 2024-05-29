@@ -1,12 +1,23 @@
 # Depth First Search Algorithm (recursive)
 ---
+
 Depth first search (DFS) for graphs can be used to find a path from
 a single start node to either a single end node, one of several end
 nodes, or all nodes that are connected (depending on the termination
-condition).
+condition). As the search proceeds, a "parent" is assigned to each node
+encountered, which allows us to represent a path from the node back to
+the start. This recursive coding is very simple: the core is a recursive
+function that is called with a node n and a parent p. If the parent of
+n has not yet been decided it assigns p as the parent and recursively
+calls the function on all nodes neighbouring n, with n as the parent,
+until an end node is found or all nodes in the componenent have been
+examined.
 
-Elsewhere we have a an iterative version, coded to
-emphasise the similar structure to several other graph algorithms.
+Elsewhere we have an iterative version of DFS.
+For recursive DFS it is not necessary to understand the code or
+structure of the iterative version but it can be informative.
+The iterative DFS code is more complicated but it 
+emphasises the similar structure with several other graph algorithms.
 Some of these work with weighted graphs (with positive weights
 for all edges), where the aim is to find the shortest path(s) (or the
 minimum spanning tree in the case of Prim's algorithm) but DFS ignores
@@ -28,12 +39,7 @@ also need some way to check if a node has been seen and/or finalised. The
 frontier initially contains just the start node. The algorithms repeatedly
 pick a frontier node, finalises the node (its current parent becomes
 its final parent) and updates information about neighbours of the node.
-
-The recursive code for DFS is significantly simpler than the iterative
-code.  The core is a recursive function that is called with a node n and
-a parent p. If the parent of n has not yet been decided it assigns p as
-the parent and recursively calls the function on all nodes neighbouring n,
-with n as the parent.  The recursion uses an implicit stack of calls (we
+Recursive DFS uses an implicit stack of calls (we
 show this in the animation), and each of these calls has a "continuation"
 (the remaining neighbouring nodes to be examined when control returns to
 that function call). You can think of the frontier as being implicitly
@@ -48,8 +54,8 @@ data structures are needed.
 For consistency with other algorithm animations, the layout of the
 graph is on a two-dimensional grid where each node has (x,y) integer
 coordinates.  You can choose the start and end nodes and change the
-graph choice (see the instructions tab for more details).  Weights of
-edges can be included in the text box input but DFS will ignore weights
+graph choice (see the instructions tab for more details).  While weights of
+edges can be included in the text box input, DFS will ignore weights
 and positions of nodes.  Only a single end node is supported; choosing
 0 results in finding paths to all connected nodes.
 
