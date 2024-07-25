@@ -1,6 +1,8 @@
 import React, { createContext, useState } from 'react';
+// generic version of collapseChunkPlugin - could probably adapt code and
+// delete some others XXX
+import { initGlobalAlgorithmGetter } from '../algorithms/controllers/collapseChunkPlugin';
 import { initGlobalAlgotithmGetter } from '../algorithms/controllers/transitiveClosureCollapseChunkPlugin';
-import { initGlobalAlgorithmGetterQS } from '../algorithms/controllers/quickSortCollapseChunkPlugin';
 import { dispatcher, initialState } from './actions';
 
 /* What's going on here?
@@ -32,14 +34,12 @@ export const GlobalProvider = ({ children }) => {
     dispatch,
   };
 
+  initGlobalAlgorithmGetter(
+    () => globalState.algorithm,
+  );
   initGlobalAlgotithmGetter(
     () => globalState.algorithm,
-    () => dispatch,
   );
-  initGlobalAlgorithmGetterQS(
-    () => globalState.algorithm,
-     () => dispatch,
-     );
 
   return (
     <GlobalContext.Provider value={globalState}>

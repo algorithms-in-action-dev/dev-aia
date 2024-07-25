@@ -4,8 +4,10 @@
 import algorithms from '../algorithms';
 import Chunker from './chunker';
 import findBookmark from '../pseudocode/findBookmark';
+// generic version of collapseChunkPlugin - could probably adapt code and
+// delete some others XXX
+import { onCollapseChange } from '../algorithms/controllers/collapseChunkPlugin';
 import { onCollapseStateChange } from '../algorithms/controllers/transitiveClosureCollapseChunkPlugin';
-import { onCollapseStateChangeQS } from '../algorithms/controllers/quickSortCollapseChunkPlugin';
 import { unionFindToggleRank } from '../algorithms/controllers/unionFindUnion';
 
 const DEFAULT_ALGORITHM = 'heapSort';
@@ -388,10 +390,8 @@ export const GlobalActions = {
       result[state.id.name][state.id.mode][codeblockname] = false; // collapse
     }
 
-    // XXX Quicksort plugin seems pretty generic - possibll use that for other
-    // algorithms (though not so efficient)
+    onCollapseChange(state.chunker); // generic plugin for expand/collapse
     onCollapseStateChange(); // Transitive closure plugin
-    onCollapseStateChangeQS(state.chunker); // Quicksort plugin
     unionFindToggleRank(state);
 
     return {

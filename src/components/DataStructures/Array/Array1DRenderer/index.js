@@ -52,10 +52,13 @@ class Array1DRenderer extends Array2DRenderer {
     this.maxStackDepth = 0;
   }
 
+// XXX "Warning: Each child in a list should have a unique "key" prop.
+// Check the render method of `Array1DRenderer`" ???
   renderData() {
 
+    // listOfNumbers used for stack caption in msort_arr_td
     // eslint-disable-next-line
-    const { data, algo, stack, stackDepth } = this.props.data;
+    const { data, algo, stack, stackDepth, listOfNumbers } = this.props.data;
 
     const arrayMagnitudeScaleValue = 20; // value to scale an array e.g. so that the maximum item is 150px tall
 
@@ -63,19 +66,38 @@ class Array1DRenderer extends Array2DRenderer {
       (longestRow, row) => (longestRow.length < row.length ? row : longestRow),
       [],
     );
-    let largestColumnValue = data[0].reduce(
-      (acc, curr) => (acc < curr.value ? curr.value : acc),
-      0,
-    );
+    let largestColumnValue = 0;
+    // if largestValue not set explicitly, compute it
+    if (!this.props.data.largestValue) {
+      largestColumnValue = data[0].reduce(
+        (acc, curr) => (acc < curr.value ? curr.value : acc),
+        0,
+      );
+    } else {
+      largestColumnValue = this.props.data.largestValue;
+    }
+    // handle non-numbers by using minimum height
     let scaleY = ((largest, columnValue) =>
-      (columnValue / largest) * arrayMagnitudeScaleValue).bind(
+      (typeof columnValue !== "number"? 0 :
+       (columnValue / largest) * arrayMagnitudeScaleValue)).bind(
       null,
       largestColumnValue,
     );
     if (!this.props.data.arrayItemMagnitudes) {
       scaleY = () => 0;
     }
+    // wrap output in table like 2D array so we can have a caption (for
+    // msort_arr_td) XXX fix indentation
     return (
+      <table
+        className={switchmode(mode())}
+        style={{
+          marginLeft: -this.centerX * 2,
+          marginTop: -this.centerY * 2,
+          transform: `scale(${this.zoom})`,
+        }}
+      >
+      <tbody>
       <motion.div animate={{ scale: this.zoom }} className={switchmode(mode())}>
         {/* Values */}
         {data.map((row, i) => (
@@ -88,18 +110,6 @@ class Array1DRenderer extends Array2DRenderer {
               justifyContent: 'center',
             }}
           >
-            {/* 
-                Pivot Line Rendering:
-                - This JSX code renders the visual line over the pivot element in 1D arrays, e.g., QuickSort.
-                - The feature is currently disabled. To re-enable:
-                  1. Uncomment the following JSX.
-                  2. Uncomment the `.pivotLine` style in Array1DRenderer.module.scss.
-                */}
-
-            {/* 
-                {row.filter((col) => col.variables.includes('pivot')).map((col)=><div className={styles.pivotLine} style={{
-                  bottom: `max(var(--array-1d-minimum-height), ${this.toString(scaleY(col.value))}vh)`}}/>)}
-                */}
             {row.map((col) => (
               <motion.div
                 layout
@@ -134,7 +144,7 @@ class Array1DRenderer extends Array2DRenderer {
         ))}
 
         <div>
-          {/* Indexes */}
+          {/* Indexes  XXX maybe avoid for arrayB in Merge sort? */}
           <div
             className={styles.row}
             style={{ display: 'flex', justifyContent: 'space-between' }}
@@ -193,7 +203,8 @@ class Array1DRenderer extends Array2DRenderer {
           )}
         </div>
         <div>
-          {stack && stack.length > 0 ? (
+          {// Quicksort stuff
+          stack && stack.length > 0 ? (
             this.maxStackDepth = Math.max(this.maxStackDepth, stackDepth),
             stackRenderer(stack, data[0].length, stackDepth, this.maxStackDepth)
           ) : (
@@ -201,6 +212,18 @@ class Array1DRenderer extends Array2DRenderer {
           )}
         </div>
       </motion.div>
+      </tbody>
+      { // XXX I've given up trying to avoid this warning:(
+        // "Whitespace text nodes cannot appear as a child of <table>. Make
+        // sure you don't have any extra whitespace between tags on each
+        // line of your source code."  Similariy div inside tbody.
+        algo === 'msort_arr_td' && listOfNumbers && (
+          <caption
+            className={styles.captionmsort_arr_td}
+            kth-tag="msort_arr_td_caption"
+          > Call stack (n,p):&emsp; {listOfNumbers}&emsp;&emsp; </caption>)
+      }
+      </table>
     );
   }
 }
