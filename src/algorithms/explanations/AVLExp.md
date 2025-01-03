@@ -1,4 +1,4 @@
-# AVL Tree
+# AVL Trees
 
 A binary tree is either is either empty (Empty) or else it
         it has a root node and two subtrees (which are binary trees).
