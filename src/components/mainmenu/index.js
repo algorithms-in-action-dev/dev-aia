@@ -38,6 +38,7 @@ const allAlgorithms = [
     { name: 'Quicksort (Median of 3)', url: `${baseUrl}/?alg=quickSortM3&mode=sort` },
     { name: 'Merge Sort', url: `${baseUrl}/?alg=msort_arr_td&mode=sort` }, // don't include list mergesort?
     { name: 'Radix Sort (MSD/Exchange)', url: `${baseUrl}/?alg=radixSortMSD&mode=sort` },
+    { name: 'Radix Sort (LSD/Straight)', url: `${baseUrl}/?alg=radixSortStraigh&mode=sort` },
   ];
 
 // const allAlgorithms = [
