@@ -151,6 +151,7 @@ class Array1DRenderer extends Array2DRenderer {
               >
                 {longestRow.map((_, i) => {
                   // if the graph instance is heapsort, then the array index starts from 1
+                  i += 1;
                   if (algo !== "straightRadixSort") {
                     i += 1;
                   }
@@ -223,6 +224,20 @@ class Array1DRenderer extends Array2DRenderer {
               className={styles.captionmsort_arr_td}
               kth-tag="msort_arr_td_caption"
             > Call stack (n,p):&emsp; {listOfNumbers}&emsp;&emsp; </caption>)
+        }
+        {
+          algo === 'msort_arr_bup' && listOfNumbers && (
+            <caption
+              className={styles.captionmsort_arr_bup}
+              kth-tag="msort_arr_bup_caption"
+            > &emsp; {listOfNumbers}&emsp;&emsp; </caption>)
+        }
+        {
+          algo === 'msort_arr_nat' && listOfNumbers && (
+            <caption
+              className={styles.captionmsort_arr_nat}
+              kth-tag="msort_arr_nat_caption"
+            > &emsp; {listOfNumbers}&emsp;&emsp; </caption>)
         }
       </table>
     );

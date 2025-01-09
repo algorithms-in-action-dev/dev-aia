@@ -8,6 +8,8 @@ const sortingAlgorithms = [
   { name: 'Quicksort', url: `${baseUrl}/?alg=quickSort&mode=sort` },
   { name: 'Quicksort (Median of 3)', url: `${baseUrl}/?alg=quickSortM3&mode=sort` },
   { name: 'Merge Sort (top-down)', url: `${baseUrl}/?alg=msort_arr_td&mode=sort` },
+  { name: 'Merge Sort (bottom-up)', url: `${baseUrl}/?alg=msort_arr_bup&mode=sort` },
+  { name: 'Merge Sort (natural)', url: `${baseUrl}/?alg=msort_arr_nat&mode=sort` },
   { name: 'Radix Sort (MSD/Exchange)', url: `${baseUrl}/?alg=radixSortMSD&mode=sort` },
   { name: 'Radix Sort (LSD/Straight)', url: `${baseUrl}/?alg=radixSortStraight&mode=sort` },
 ];

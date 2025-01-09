@@ -556,3 +556,80 @@ class Array2DRenderer extends Renderer {
 }
 
 export default Array2DRenderer;
+/*
+<<<<<<< HEAD
+                    </td>
+                  );
+                })}
+                {
+                  (pointer && algo === 'tc' && (
+                    <th className={classes(styles.col, styles.index)}>
+                      <span className={styles.value}> i </span>
+                    </th>
+                  ))
+                  ||
+                  (algo === 'aStar' && i === 1 && (
+                    <th className={classes(styles.col, styles.index)}>
+                      <span className={styles.value}> )Priority </span>
+                    </th>
+                  ))
+                  ||
+                  (algo === 'aStar' && i === 2 && (
+                    <th className={classes(styles.col, styles.index)}>
+                      <span className={styles.value}> )Queue&ensp; </span>
+                    </th>
+                  ))
+                  ||
+                  (((algo === 'prim' && i === 2) ||
+                    (algo === 'dijkstra' && i === 2)
+                  ) && (
+                      <th className={classes(styles.col, styles.index)}>
+                        <span className={styles.value}> Priority Queue </span>
+                      </th>
+                    ))
+                  || <td className={classes(styles.col, styles.index)} />}
+              </tr>
+            );
+          })}
+          {algo === 'tc' && (
+            // Don't remove "j-tag='transitive_closure'"
+            <tr j-tag="transitive_closure" className={styles.row}>
+              <td />
+              {data_T.map((row) => {
+                let pointer = false;
+                // eslint-disable-next-line no-plusplus
+                for (let j = 0; j < row.length; j++) {
+                  if (row[j].selected1) {
+                    pointer = true;
+                  }
+                }
+                return (
+                  (pointer && (
+                    <th className={classes(styles.col, styles.index)}>
+                      <span className={styles.value}> j </span>
+                    </th>
+                  )) || <td className={classes(styles.col, styles.index)} />
+                );
+              })}
+            </tr>
+          )}
+          {(algo === 'prim' ||
+            algo === 'kruskal' ||
+            algo === 'dijkstra' ||
+            algo === 'aStar' ||
+            algo === 'DFS' ||
+            algo === 'DFSrec' ||
+            algo === 'msort_lista_td' ||
+            algo === 'BFS') &&
+            data.map(
+              (row, i) =>
+                i === 2 && (
+                  <AnimateSharedLayout>
+                    <tr layout className={styles.row} key={i}>
+                      {row.map((col, j) => (
+                        <td
+                          className={classes(styles.col, styles.variables)}
+                          key={j}
+=======
+>>>>>>> 2024_sem2
+*/

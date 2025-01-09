@@ -11,6 +11,8 @@ const algorithms = {
     Quicksort: `${baseUrl}/?alg=quickSort&mode=sort`,
     'Quicksort (Median of 3)': `${baseUrl}/?alg=quickSortM3&mode=sort`,
     'Merge Sort': `${baseUrl}/?alg=msort_arr_td&mode=sort`,
+    'Merge Sort (Bottom-up)': `${baseUrl}/?alg=msort_arr_bup&mode=sort`,
+    'Merge Sort (Natural)': `${baseUrl}/?alg=msort_arr_nat&mode=sort`,
     'Radix Sort (MSD/Exchange)': `${baseUrl}/?alg=radixSortMSD&mode=sort`,
     'Radix Sort (LSD/Straight)': `${baseUrl}/?alg=radixSortStraight&mode=sort`,
   },

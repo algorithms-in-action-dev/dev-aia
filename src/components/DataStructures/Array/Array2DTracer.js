@@ -416,8 +416,14 @@ class Array2DTracer extends Tracer {
       }
     }
 
+// <<<<<<< HEAD XXX merge BUP mergesort - first bit looks dodgy
+//    // add variable to item if not undefined or null
+//    if (idx !== null && idx !== undefined)
+//      newData[row][idx].variables.push(v);
+// =======
     if (!this.splitArray.doSplit) {
       const newData = cloneDeepWith(this.data, customizer);
+// >>>>>>> 2024_sem2
 
       // remove all current occurences of the variable
       for (let y = 0; y < newData[row].length; y++) {
