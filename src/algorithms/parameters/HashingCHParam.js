@@ -17,6 +17,7 @@ import {
 } from './helpers/ParamHelper';
 import { SMALL_SIZE, LARGE_SIZE } from '../controllers/HashingCommon';
 
+
 // Algotiyhm information and magic phrases
 const ALGORITHM_NAME = 'Hashing (linear probing)';
 const HASHING_INSERT = 'Hashing Insertion';
