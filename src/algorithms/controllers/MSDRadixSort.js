@@ -176,6 +176,7 @@ export default {
         // first/last element and give the actual value of j/i
         let cur_i_too_high;
         let cur_j_too_low;
+        let tmp_j = cur_j; // used to determine context later
         if (cur_i === A.length) {
           cur_i = undefined;
           cur_i_too_high = A.length - 1;
@@ -208,7 +209,6 @@ export default {
         vis.array.setStack(
           deriveStack(cur_real_stack, cur_finished_stack_frames, cur_i, cur_j, cur_depth)
         );
-console.log(cur_real_stack, cur_finished_stack_frames);
 
         // XXX This is getting very messy - (un)highlighting depends a
         // lot on where we are and we have a bunch of tricky testing of
@@ -225,10 +225,11 @@ console.log(cur_real_stack, cur_finished_stack_frames);
           // init, before partition
           highlight(vis, cur_i)
           highlight(vis, cur_j)
-        } else if (cur_i !== undefined && cur_j === undefined && prev_i !== undefined) {
+        } else if (cur_i !== undefined && tmp_j === undefined && prev_i !== undefined) {
           // just before first recursive call
           unhighlight(vis, prev_i)
-          unhighlight(vis, prev_j)
+          if (prev_j >= 0) // might have fallen off array
+            unhighlight(vis, prev_j)
         } else if (checkingLeft) {
           if (prev_i !== undefined && prev_i !== cur_j)
             unhighlight(vis, prev_i)
@@ -237,8 +238,9 @@ console.log(cur_real_stack, cur_finished_stack_frames);
             updateBinary(vis, arr[cur_i])
         } else {
           if (prev_j !== undefined && prev_j !== cur_i)
-            unhighlight(vis, prev_j)
-          highlight(vis, cur_j)
+            unhighlight(vis, prev_j);
+          if (cur_j !== undefined) // might have fallen off array
+            highlight(vis, cur_j);
           if (arr && cur_j)
             updateBinary(vis, arr[cur_j])
         }
