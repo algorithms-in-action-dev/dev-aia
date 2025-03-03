@@ -141,6 +141,7 @@ class Array1DTracer extends Array2DTracer {
     this.stackDepth = depth;
   }
 
+
   // default is to compute largestColumnValue but we can set it
   // explicitly so we can make two arrays look the same when moving
   // elements between them and avoid re-scaling

@@ -3,6 +3,7 @@ import MaskTracer from '../../components/DataStructures/Mask/MaskTracer'
 import {
   areExpanded,
 } from './collapseChunkPlugin';
+import { createPopper } from '@popperjs/core';
 
 // see stackFrameColour in Array1DRenderer/index.js to find corresponding function mapping to css
 const STACK_FRAME_COLOR = {
@@ -239,10 +240,11 @@ export default {
         } else {
           if (prev_j !== undefined && prev_j !== cur_i)
             unhighlight(vis, prev_j);
-          if (cur_j !== undefined) // might have fallen off array
+          if (cur_j !== undefined) { // might have fallen off array
             highlight(vis, cur_j);
-          if (arr && cur_j)
+            // XXX probably best avoid updateBinary at swap
             updateBinary(vis, arr[cur_j])
+          }
         }
         if (left < A.length)
           assignVariable(vis, VIS_VARIABLE_STRINGS.left, left);
@@ -297,21 +299,6 @@ export default {
             STACK_FRAME_COLOR.Current_stackFrameR,
           );
         }
-
-        if (cur_depth === undefined) {
-          return stack_vis;
-        }
-
-        if (!isPartitionExpanded()) { return stack_vis; }
-
-        // if (cur_i >= 0 && cur_i < n) {
-        //   stack_vis[cur_depth][cur_i].extra.push(STACK_FRAME_COLOR.I_color);
-        // }
-
-        // if (cur_j >= 0 && cur_j < n) {
-        //   stack_vis[cur_depth][cur_j].extra.push(STACK_FRAME_COLOR.J_color);
-        // }
-
         return stack_vis;
       }
 
@@ -331,13 +318,18 @@ export default {
       let j;  // the recursive calls; XX best rename - "i" too generic
       let prev_i;  // for unhighlighting
       let prev_j;  // for unhighlighting
+      // search for POPPERS: below for more detailed comments
+      let floatingBoxes = new Array(n); // XXX popper instances (rename)
+      let DELAY_POPPER_CREATE = 600;
+      let DELAY_POPPER_RESET = 700;
+      let DELAY_POPPER_SWAP = 700;
+
       const partition = (arr, left, right, mask, depth) => {
         i = left
         j = right
 
         const partitionChunkerWrapper = (bookmark) => {
-          partitionChunker(bookmark, i, j, prev_i, prev_j, left, right,
-depth, arr, mask)
+          partitionChunker(bookmark, i, j, prev_i, prev_j, left, right, depth, arr, mask)
         }
 
         function swapAction(bookmark, n1, n2) {
@@ -348,12 +340,28 @@ depth, arr, mask)
           [arr[n1], arr[n2]] = [arr[n2], arr[n1]]
 
           chunker.add(bookmark,
-            (vis, _n1, _n2, cur_real_stack, cur_finished_stack_frames, cur_i, cur_j, cur_depth) => {
+            (vis, _n1, _n2, cur_real_stack, cur_finished_stack_frames,
+cur_i, cur_j, cur_depth, A) => {
 
               vis.array.swapElements(_n1, _n2);
-              refreshStack(vis, cur_real_stack, cur_finished_stack_frames, cur_i, cur_j, prev_i, prev_j, left, right, cur_depth, false, undefined, arr, mask)
+              refreshStack(vis, cur_real_stack, cur_finished_stack_frames, cur_i, cur_j, prev_i, prev_j, left, right, cur_depth, false, undefined, A, mask)
+              // redo poppers: swapping the elements keeps the
+              // contents of the poppers correct but the position needs
+              // to change. The documentation suggests update()
+              // should work and it does partially but it also screws up
+              // the position sometimes, particularly for _n1; it
+              // returns a promise but we can't use await here. The
+              // contents also gets screwed up sometimes stepping
+              // backwards (stepping backwards again seems to help). The
+              // wonders of asynchronous programming...
+              // The solution we use here is to schedule a forceUpdate()
+              // after a bit of a delay - seems to work ok on some
+              // devices at least...
+              setTimeout( () => floatingBoxes[_n1].forceUpdate(), DELAY_POPPER_SWAP);
+              setTimeout( () => floatingBoxes[_n2].forceUpdate(), DELAY_POPPER_SWAP);
             },
-            [n1, n2, real_stack, finished_stack_frames, i, j, depth],
+            [n1, n2, real_stack, finished_stack_frames, i, j, depth,
+arr],
           depth);
         }
 
@@ -402,19 +410,6 @@ depth, arr, mask)
         // Base case: If the array has 1 or fewer elements or mask is less than 0, stop
         partitionChunker(MSD_BOOKMARKS.rec_function, undefined, undefined, undefined, undefined, left, right, depth, arr, mask)
         maxIndex = undefined; // defined only for top level call
-/*
-        chunker.add(MSD_BOOKMARKS.rec_function, (vis, left, right) => {
-          if (left < n)
-            assignVariable(vis, VIS_VARIABLE_STRINGS.left, left);
-          if (right >= 0)
-            assignVariable(vis, VIS_VARIABLE_STRINGS.right, right);
-          updateMask(vis, mask)
-
-          for (let i = 0; i < n; i++) {
-            unhighlight(vis, i);
-          }
-        }, [left, right], depth)
-*/
         chunker.add(MSD_BOOKMARKS.base_case, (vis) => {}, [], depth)
 
         if (left < right && mask >= 0) {
@@ -442,21 +437,88 @@ depth, arr, mask)
         finished_stack_frames.push(real_stack.pop());
       }
 
-      // Initialise the array on start
-      chunker.add(MSD_BOOKMARKS.start,
-        (vis, array) => {
-            vis.array.set(array, 'MSDRadixSort')
-            vis.array.setSize(5);  // more space for array
-            vis.array.setZoom(0.90);
-        },
-        [nodes],
-        0
-      )
+      // XXX probably should rename floatingBoxes to something like poppers.
+      // POPPERS:
+      // Handling is rather tricky. We have the global array of poppers,
+      // which display the binary version of the data when the mouse is
+      // over the data.  They are derived from the HTML displayed (the
+      // array renderer puts wrappers around array elements). However,
+      // the display of HTML is asynchronous, making things a bit of a
+      // nightmare, to put it mildly. When the algorithm is initially
+      // loaded/run, the array is filled with nulls. When the first
+      // chunk is executed for the first time, a popper is created for
+      // each data item and put in the array. A carefully crafted delay
+      // (using setTimeout) is inserted before popper creation to allow
+      // the HTML array contents to be rendered first.  When array
+      // elements are swapped, the wrappers that the poppers rely on are
+      // swapped with them so the poppers automatically follow the data
+      // around... almost. They need to update their location (so the
+      // popper appears next to the current location of the data, not
+      // where the data used to be or some other random point); we use
+      // forceUpdate(), which also needs to be inside a setTimeout to
+      // allow rendering to take place first.  Just to add to the
+      // complexity, if the execution steps backwards, all the chunks
+      // are re-executed, starting from the first one.  The first chunk
+      // therefore checks if poppers have already been created and, if
+      // so, calls forceUpdate() (inside setTimeout of course) for each
+      // popper so it gets the right screen location.
+      // XXX It would probably be nicer to allow users to click on a
+      // data element and have that displayed with the mask etc.  This
+      // was implemented in the BROKEN-radix-click4binary branch but it
+      // somehow breaks react - no further stepping through the
+      // animation is possible after a click:(
+      floatingBoxes.fill(null);
 
+      // We don't display maxIndex yet but use it for creating poppers
+      // with the desired number of bits.  We want to create the poppers
+      // in the first chunk so there is a bit of a delay before anything
+      // else happens. 
       maxIndex = A.indexOf(Math.max(...A))
       const mask = getMaximumBit(A);
 
-      // Highlight the index
+      // Initialise the array on start
+      chunker.add(MSD_BOOKMARKS.start,
+        (vis, array, mask) => {
+            vis.array.set(array, 'MSDRadixSort')
+            vis.array.setSize(5);  // more space for array
+            vis.array.setZoom(0.90);
+            // set up poppers
+            // A bit of a nightmare due to asynchronous programming. The
+            // first time this is called we create the poppers (after a
+            // delay); subsequently we just update them (after a delay).
+            // XXX could just use one setTimeout for all the poppers
+            for (let idx = 0; idx < array.length; idx++) {
+              if (floatingBoxes[idx] === null) {
+                setTimeout( () => {
+                  const popper = document.getElementById('float_box_' + idx);
+                  const slot = document.getElementById('chain_' + idx);
+                  floatingBoxes[idx] =  createPopper(slot, popper, {
+                      placement: "right-start",
+                      strategy: "fixed",
+                      modifiers: [
+                          {
+                              removeOnDestroy: true, // doesn't work well?
+                              name: 'preventOverflow',
+                              options: {
+                                // XXX popper_boundary not defined for 1D
+                                // array - maybe it should be??
+                                boundary: document.getElementById('popper_boundary'),
+                              },
+                          },
+                      ]
+                  });
+                  popper.innerHTML = array[idx].toString(2).padStart(mask + 1, "0");
+                }, DELAY_POPPER_CREATE);
+              } else {
+                setTimeout( () => floatingBoxes[idx].forceUpdate(), DELAY_POPPER_RESET);
+              }
+            }
+        },
+        [A, mask],
+        0
+      )
+
+      // Highlight the index of the max element + init mask
       chunker.add(MSD_BOOKMARKS.get_mask,
           (vis, maxIndex, mask, A) => {
             highlight(vis, maxIndex)
@@ -467,16 +529,7 @@ depth, arr, mask)
           [maxIndex, mask, A],
           0
       )
-/*
-      chunker.add(MSD_BOOKMARKS.rec_function,
-        (vis, maxIndex) => {
-          unhighlight(vis, maxIndex)
-        }, [maxIndex],
-        0
-      )
-*/
       msdRadixSortRecursive(A, 0, n-1, mask, 0);
-
 
       chunker.add(MSD_BOOKMARKS.done,
         vis => {
