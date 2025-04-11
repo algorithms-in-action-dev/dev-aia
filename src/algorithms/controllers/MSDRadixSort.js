@@ -56,7 +56,6 @@ const MSD_BOOKMARKS = {
   partition_right: 305,
   swap_condition: 309,
   swap: 310,
-  inc_dec: 'inc_dec',
   pre_sort_left: 400,
   sort_left: 401,
   pre_sort_right: 500,
@@ -356,8 +355,6 @@ cur_i, cur_j, cur_depth, A) => {
 
               vis.array.swapElements(_n1, _n2);
               refreshStack(vis, cur_real_stack, cur_finished_stack_frames, cur_i, cur_j, prev_i, prev_j, left, right, cur_depth, false, undefined, A, mask)
-              // vis.array.selectColor(_n1, partLColor);
-              // vis.array.selectColor(_n2, partRColor);
               // redo poppers: swapping the elements keeps the
               // contents of the poppers correct but the position needs
               // to change. The documentation suggests update()
@@ -384,7 +381,6 @@ arr],
           prev_i = i; // save prev value for unhighlighting
           prev_j = j;
           // Build the left group until it reaches the mask (find the big element)
-          // leftCheck = true
           i++;
           partitionChunkerWrapper(MSD_BOOKMARKS.partition_left)
           while (i < j && (arr[i] >> mask & 1) === 0) {
@@ -392,7 +388,6 @@ arr],
             partitionChunkerWrapper(MSD_BOOKMARKS.partition_left)
           }
           // Build the right group until it fails the mask (find the small element)
-          // leftCheck = false
           j--;
           partitionChunkerWrapper(MSD_BOOKMARKS.partition_right)
           while (j > i && (arr[j] >> mask & 1) === 1) {
@@ -404,9 +399,6 @@ arr],
           if (i < j) {
             partitionChunkerWrapper(MSD_BOOKMARKS.swap_condition)
             swapAction(MSD_BOOKMARKS.swap, i, j)
-            // i++;
-            // j--;
-            // partitionChunkerWrapper(MSD_BOOKMARKS.inc_dec)
           } else {
             // about to return i from partition.  We update the "mid" of
             // the partition on the stack here so it is displayed at the
