@@ -4,7 +4,7 @@
 
 Heapsort is a general purpose in-place sorting algorithm that has
 *<verbatim>O(n log n)</verbatim>* behavior in the worst case. It
-proceeds by first rearranging the array so it is a *heap* (which has some
+proceeds by first rearranging the input array so it is a *heap* (which has some
 ordering maintained; see below) then converting the heap into a sorted
 array.
 
@@ -51,7 +51,3 @@ is greater than or equal to the maximum child (or the node is a leaf).
 The time complexity of *DownHeap* is *O(log n)*. Overall for Heapsort
 the worst case and nearly all other cases have time complexity *O(n log n)*.
 Space complexity is O(1).
-
-
-
-
