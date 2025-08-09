@@ -56,6 +56,21 @@ this mechanism for acess to "hidden" algorithms
 
 const allalgs = {
 
+  'isort': {
+    name: 'Insertion Sort',
+    noDeploy: false,
+    category: 'Sort',
+    explanation: Explanation.isort,
+    param: <Param.isort/>,
+    instructions: Instructions.isort,
+    extraInfo: ExtraInfo.isort,
+    pseudocode: {
+      sort: Pseudocode.isort,
+    },
+    controller: {
+      sort: Controller.isort,
+    },
+  },
   'heapSort': {
     name: 'Heapsort',
     category: 'Sort',
@@ -143,18 +158,18 @@ const allalgs = {
   },
 
   'msort_arr_bup': {
-    name: 'Merge Sort (bottom up)',             // for bottom up
+    name: 'Merge Sort (bottom up)',
     noDeploy: false,
-    category: 'Sort',                           // for bottom up
-    explanation: Explanation.msort_arr_bup,     // for bottom up,  working yet
-    param: <Param.msort_arr_bup />,              // same as top down
-    instructions: Instructions.msort_arr_bup,    // for bottom up same as top down
-    extraInfo: ExtraInfo.msort_arr_bup,          // same as top down
+    category: 'Sort', 
+    explanation: Explanation.msort_arr_bup,
+    param: <Param.msort_arr_bup />,
+    instructions: Instructions.msort_arr_bup,
+    extraInfo: ExtraInfo.msort_arr_bup,
     pseudocode: {
-      sort: Pseudocode.msort_arr_bup, // same as top down
+      sort: Pseudocode.msort_arr_bup,
     },
     controller: {
-      sort: Controller.msort_arr_bup,// same as top down
+      sort: Controller.msort_arr_bup,
     },
   },
 
@@ -173,9 +188,23 @@ const allalgs = {
       sort: Controller.msort_arr_nat,
     },
   },
-
+  'msort_list_td': {
+    name: 'Merge Sort (for lists)',
+    noDeploy: false,
+    category: 'Sort',
+    explanation: Explanation.msort_list_td,
+    param: <Param.msort_list_td/>,
+    instructions: Instructions.msort_list_td,
+    extraInfo: ExtraInfo.msort_list_td,
+    pseudocode: {
+      sort: Pseudocode.msort_list_td,
+    },
+    controller: {
+      sort: Controller.msort_list_td,
+    },
+  },
   'msort_lista_td': {
-    name: 'Merge Sort (lists)',
+    name: 'Merge Sort (lists as arrays)',
     category: 'Sort',
     explanation: Explanation.msort_lista_td,
     param: <Param.msort_lista_td />,
@@ -204,6 +233,21 @@ const allalgs = {
     controller: {
       insertion: Controller.binaryTreeInsertion,
       search: Controller.binaryTreeSearch,
+    },
+  },
+  'BSTrec': {
+    name: 'Binary Search Tree (recursive)',
+    noDeploy: false,
+    category: 'Sort',
+    explanation: Explanation.BSTrec,
+    param: <Param.BSTrec/>,
+    instructions: Instructions.BSTrec,
+    extraInfo: ExtraInfo.BSTrec,
+    pseudocode: {
+      sort: Pseudocode.BSTrec,
+    },
+    controller: {
+      sort: Controller.BSTrec,
     },
   },
   'TTFTree': {
@@ -458,11 +502,6 @@ const allalgs = {
     noDeploy: false,
     name: 'Horspool\'s',
     category: 'String Search',
-    /*
-    Todo:
-     1. Add explanation and extra info markdown contents
-     2. Implement controller (check bookmark)
-    */
     explanation: Explanation.HSSExp,
     param: <Param.HSSParam />,
     instructions: Instructions.HSSInstruction,

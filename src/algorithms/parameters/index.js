@@ -26,3 +26,6 @@ export { default as DFSrecParam } from './DFSrecParam';
 export { default as HashingLPParam } from './HashingLPParam';
 export { default as HashingDHParam } from './HashingDHParam';
 export { default as HashingCHParam } from './HashingCHParam';
+export { default as isort} from './isort'
+export { default as BSTrec} from './BSTrec'
+export { default as msort_list_td} from './msort_list_td'
