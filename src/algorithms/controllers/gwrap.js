@@ -1,343 +1,298 @@
-// Heapsort animation
-// 
-// It's worth looking at this code if you are planning to write any new
-// modules.
-// 
-// This was the first animation done and the code is reasonably simple -
-// the abstractions supported match what we need for this algorithm.
-// For various other algorithms, the code seems much more messy - maybe
-// the abstractions for the data structures/rendering are not quite what
-// is needed or the coding is done with a sledgehammer, so to speak.
-// 
-// The original version of this code was not quite right in the way it
-// adapted (or didn't adapt) to expansion/collapse of code blocks.  This
-// was added later in a reasonably simple way (again, other algorithms
-// may use the sledgehammer style).
-// 
-// One thing that could make the code here more readable is to use
-// meaningful strings for bookmarks rather than numbers.
-// The way colors are done could also be improved - currently moving to
-// a less insane scheme so there is some consistency between colors for
-// array elements and tree/graph nodes.
-
-/* eslint-disable no-multi-spaces,indent,prefer-destructuring,brace-style */
+// Gift wrapping convex hull algorithm (based on DFSrec)
+// but code is simpler and has different structure of course.
+// XXX iterative version ends up with fewer "fontier" edges because if
+// you add the node to the frontier again, the previous edge reverts - that
+// should probably be changed??  Not sure about BFS etc
+// Copied and modified from dijkstra.js (nicer code than DFS)
+// Might be some leftover bit from dijkstra.js that could be cleaned up
+// further.
+// XXX add support for multiple end nodes
 import GraphTracer from '../../components/DataStructures/Graph/GraphTracer';
-import ArrayTracer from '../../components/DataStructures/Array/Array1DTracer';
-import {areExpanded} from './collapseChunkPlugin';
-import {colors} from '../../components/DataStructures/colors';
-
-// currently colors for graphs (including trees) are still a mess; this
-// is kind of a stub for when they are fixed up.  The code involving
-// (un)highlight() and .sorted() should be fixed at this point also.
-// We define colors for the array (_A) and tree (_T) views; note current and
-// child nodes are swapped at times in downheap. At the start, nothing
-// is selected but it turns out that whenever anything is de-selected it
-// is part of a heap.
-const HSColors = {
-    CURRENT_A: colors.apple,
-    CHILD_A: colors.sky,
-    HEAP_A: colors.leaf,
-    CURRENT_T: 3,  // Red (globalColors.apple)
-    CHILD_T: 4,  // Blue (globalColors.sky)
-    HEAP_T: 1, // Green (globalColors.leaf)
-  }
-
-
-// k displayed only if first BuildHeap is expanded
-// Note: This is only needed in the last chunk of BuildHeap. The code
-// looks like it displays k throughout BuildHeap but when BuildHeap is
-// collapsed, only the last chunk is rendered so the other chunks don't
-// matter and we can avoid testing what is expanded there.  Another
-// approach would be to use a wrapper function for assigning to k, which
-// checks isBuildHeapExpanded() (it doesn't generalise well for i and j
-// though).
-function isBuildHeapExpanded() {
-  return areExpanded(['BuildHeap']);
-}
-
-// i, j (in build) displayed only if first DownHeap is expanded
-// See Note in isBuildHeapExpanded()
-function isDownHeapkExpanded() {
-  return areExpanded(['BuildHeap', 'DownHeapk']);
-}
-
-// i, j (in sort) displayed only if second DownHeap is expanded
-function isDownHeap1Expanded() {
-  return areExpanded(['SortHeap', 'DownHeap1']);
-}
+import Array2DTracer from '../../components/DataStructures/Array/Array2DTracer';
+import {colorsCH} from './convexHullColours';
+import {colors} from './graphSearchColours'; // XX
 
 export default {
   initVisualisers() {
     return {
-      array: {
-        instance: new ArrayTracer('array', null, 'Array view', { arrayItemMagnitudes: true }), // Label the input array as array view
+      graph: {
+        instance: new GraphTracer('graph', null, 'Graph view'),
         order: 0,
       },
-      heap: {
-        instance: new GraphTracer('heap', null, 'Tree view'), // Label the animation of the heap as tree view
-        order: 1,
-      },
     };
   },
 
+  run(chunker, { edgeValueMatrix, coordsMatrix, startNode, endNodes, moveNode}) {
+    // String Variables used in displaying algo
+    const algNameStr = 'DFSrec';
+    const nStr = 'n';
+    const mStr = 'm';
 
-  /**
-   *
-   * @param {object} chunker
-   * @param {array} nodes array of numbers needs to be sorted
-   */
-  run(chunker, { nodes }) {
-    // create a copy, can't simply let A = nodes because it creates a reference
-    // sort A in-place will cause nodes sorted as well
-    const A = [...nodes];
-    let n = nodes.length;
-    let i;
-    let heap;
-    let swap;
+    const E = [...edgeValueMatrix];
+    const coords = [...coordsMatrix];
+    const numVertices = edgeValueMatrix.length;
+    const unassigned = ' '; // unassigned parent
+    const parents = []; // parent of each node; initially unassigned
+    const seen = []; // neighbours of finalised node
+    const nodes = [];  
+    const start = startNode - 1; 
+    const end = endNodes[0] - 1;
+
+    // Javascript to find convex hull of a set of coords. Refer 
+    // https://www.geeksforgeeks.org/dsa/orientation-3-ordered-coords/
+    // for explanation of orientation()
+    // This code is contributed by avanitrachhadiya2155
+    // Modified by Lee Naish
+    
+    // Coordinates are represented by [X, Y] arrays; define constants
+    // for the indices
+    let X = 0;
+    let Y = 1;
+    
+    // constants for colinear/Clockwise/Counterclockwise
+    let GoStraight = 0;
+    let GoClockwise = 1;
+    let GoCounterCW = 2;
+    
+    // To find orientation of ordered triplet (p, q, r).
+        // The function returns following values
+        // GoStraight --> p, q and r are colinear
+        // GoClockwise --> Clockwise
+        // GoCounterCW --> Counterclockwise
+    function orientation(p, q, r)
+    {
+        let val = (q[Y] - p[Y]) * (r[X] - q[X]) - (q[X] - p[X]) * (r[Y] - q[Y]);
+        if (val == 0) return GoStraight;
+        return (val > 0)? GoClockwise: GoCounterCW;
+    }
+
+    // checks if hull (h) has consecutive elements p,q (or q,p)
+    // (ie, an edge between the two has been added)
+    function includesConsecutive(h, p, q)
+    {
+        for (let i = 0; i < h.length; i++) {
+          if (h[i] === p & h[i+1] === q) return true;
+          if (h[i] === q & h[i+1] === p) return true;
+        }
+        return false;
+    }
+    
+    // Prints convex hull of a set of n coords.
+    function convexHull(coords, n, E)
+    {
+        // There must be at least 3 coords
+        // XXX highlight all
+        if (n < 3) return;
+       
+        // Initialize Result
+        let hull = [];
+       
+        // Find the leftmost point
+        let l = 0;
+        for (let i = 1; i < n; i++)
+            if (coords[i][X] < coords[l][X])
+                l = i;
+            // XXX if there are 2 coords with minimal x value it doesn't
+            // matter which we pick. If there are 3 such coords then
+            // potentially it may make a difference. We may be fussy about
+            // what hull we should return with colinear coords. Also the
+            // termination condition and code for finding the next point
+            // interracts with this - potentially the next point code could
+            // miss the point chosen here (and choose a colinear one
+            // instead), causing a loop.
+            // Here we break ties by picking the min y coordinate value
+            // Delete the else below to get the first minimal point and
+            // change < to <= to get the last
+            else if (coords[i][X] === coords[l][X] && coords[i][Y] < coords[l][Y])
+                l = i;
+       
+        // Start from (lowest) leftmost point, keep moving 
+        // clockwise until reach the start point
+        // again. This loop runs O(h) times where h is
+        // number of coords in result or output.
+        let p = l, q;
+        chunker.add(
+          'start',
+          (vis, edgeArray, coordsArray, c_p, c_q) => {
+            // XXX Graph too big and too far left...
+            // vis.graph.setZoom(0.5);
+            vis.graph.colorNode(c_p, colorsCH.HULLP_N);
+            vis.graph.addEdge('W', c_p);
+            vis.graph.colorEdge(c_p, 'W', colorsCH.HULL_E);
+          },
+          [E, coords, p, q], 0
+        );
+        do
+        {
+        
+            // Add current point to result
+            hull.push(p);
+            
+            // console.log("(" + coords[p][X] + ", " + coords[p][Y] + ")", hull);
+       
+            // Search for a point 'q' such that 
+            // orientation(p, q, x) is clockwise
+            // for all coords 'x'. The idea is to keep 
+            // track of last visited most clock-
+            // wise point in q. If any point 'i' is more 
+            // clock-wise than q, then update q.
+            // XXX above NQR with colinear coords on hull
+            // want q s.t. for no i, p->i->q is clockwise
+            q = (p + 1) % n;
+              
+            chunker.add('start',
+              (vis, edgeArray, coordsArray, c_p, c_q) => {
+                vis.graph.colorNode(c_q, colorsCH.NEXTQ_N);
+              },
+              [E, coords, p, q], 0
+            );
+            let hullHasQ, hullHasI, hullHasPQ, hullHasQI;
+            hullHasQ = hull.includes(q);
+            hullHasPQ = includesConsecutive(hull, p, q);
+            for (let i = 0; i < n; i++)
+            {
+              hullHasI = hull.includes(i);
+              hullHasQI = includesConsecutive(hull, i, q);
+              let old_q = q;
+              // If i is more clockwise than
+              // current q, then update q
+              if (orientation(coords[p], coords[i], coords[q]) == GoClockwise) {
+                // XXX see comment above re choice of first point in
+                // colinear case
+                // Here, if there are multiple coords with minimal
+                // clockwiseness (if thats a word), we pick the first one
+                // (min point number)
+                chunker.add('start',
+                  (vis, edgeArray, coordsArray, c_p, c_q, c_i) => {
+                    vis.graph.addEdge(c_p, c_q);
+                    vis.graph.addEdge(c_q, c_i);
+                    vis.graph.colorEdge(c_p, c_q, colorsCH.CLOCKWISE_E);
+                    vis.graph.colorEdge(c_q, c_i, colorsCH.CLOCKWISE_E);
+                  },
+                  [E, coords, p, q, i], 0
+                );
+                chunker.add('start',
+                  (vis, edgeArray, coordsArray, c_p, c_q, c_i, h_q) => {
+                    vis.graph.colorNode(c_i, colorsCH.NEXTQ_N);
+                    if (h_q)
+                      vis.graph.colorNode(c_q, colorsCH.HULLP_N);
+                    else
+                      vis.graph.removeNodeColor(c_q);
+                  },
+                  [E, coords, p, q, i, hullHasQ], 0
+                );
+                q = i;
+                // defer recalculation of hullHasQ, hullHasPQ - we want
+                // them to refere to the old version of q for now
+              } else {
+                chunker.add('start',
+                  (vis, edgeArray, coordsArray, c_p, c_q, c_i) => {
+                    vis.graph.addEdge(c_p, c_q);
+                    vis.graph.addEdge(c_q, c_i);
+                    vis.graph.colorEdge(c_p, c_q, colorsCH.ANTICLOCK_E);
+                    vis.graph.colorEdge(c_q, c_i, colorsCH.ANTICLOCK_E);
+                  },
+                  [E, coords, p, q, i], 0
+                );
+              }
+              chunker.add('start',
+                (vis, edgeArray, coordsArray, c_p, c_q, c_i, h_pq, h_qi) => {
+                  if (h_pq)
+                    vis.graph.colorEdge(c_p, c_q, colorsCH.HULL_E);
+                  else
+                    vis.graph.removeEdge(c_p, c_q);
+                  if (h_qi)
+                    vis.graph.colorEdge(c_q, c_i, colorsCH.HULL_E);
+                  else
+                    vis.graph.removeEdge(c_q, c_i);
+                },
+                [E, coords, p, old_q, i, hullHasPQ, hullHasQI], 0
+              );
+              // now update hullHasQ, hullHasPQ in case q changed above
+              hullHasQ = hull.includes(q);
+              hullHasPQ = includesConsecutive(hull, p, q);
+            }
+       
+            chunker.add( 'start',
+              (vis, edgeArray, coordsArray, c_p, c_q) => {
+                // Nice to do this in a couple of steps if possile
+                // Move wrapper close then final position with node
+                // colour change?
+                vis.graph.addEdge(c_p, c_q);
+                vis.graph.colorEdge(c_p, c_q, colorsCH.HULL_E);
+                vis.graph.colorNode(c_q, colorsCH.HULLP_N);
+                // redo "wrapping" edge
+                vis.graph.removeEdge(c_p, 'W');
+                vis.graph.addEdge('W', c_q);
+                vis.graph.colorEdge(c_q, 'W', colorsCH.HULL_E);
+                let [pX, pY] = vis.graph.getNodePosition(c_p);
+                let [qX, qY] = vis.graph.getNodePosition(c_q);
+                let wX = qX + 5 * (qX - pX); // XXX
+                let wY = qY + 5 * (qY - pY);
+                vis.graph.setNodePosition('W', wX, wY);
+              },
+              [E, coords, p, q], 0
+            );
+            // Now q is the most clockwise with
+            // respect to p. Set p as q for next iteration, 
+            // so that q is added to result 'hull'
+            p = q;
+       
+        } while (p != l);  // While we don't come to first 
+                           // point
+        // console.log("Reached (" + coords[p][X] + ", " + coords[p][Y] + ") again");
+        chunker.add( 'start',
+          (vis, edgeArray, coordsArray, c_p, c_q) => {
+            vis.graph.removeEdge(c_p, 'W');
+            vis.graph.removeNode('W');
+          },
+          [E, coords, p, q], 0
+        );
+       
+        // Print Result
+        // for (let temp of hull.values())
+            // console.log("(" + temp[X] + ", " + temp[Y] + ")");
+    }
+    
+    /* Driver program to test above function */
+/*
+    let coords = new Array(7);
+    // coords[0] = new Point(0, 3);
+    coords[0] = new Point(0, 1);
+    coords[1] = new Point(2, 3);
+    // coords[1] = new Point(2, 3);
+    coords[2] = new Point(1, 1);
+    coords[3] = new Point(2, 1);
+    coords[4] = new Point(3, 0);
+    coords[5] = new Point(0, 0);
+    coords[6] = new Point(0, 2);
+    
+    let n = coords.length;
+    convexHull(coords, n);
+*/
+    
+    
 
     chunker.add(
-      1,
-      (vis, array) => {
-        vis.heap.setHeap(array);
-        // tell the graph renderer that it is heapsort
-        // so that the array index should start from 1
-        vis.array.set(array, 'heapsort');
+      'start',
+      (vis, edgeArray, coordsArray) => {
+        vis.graph.directed(false);
+        vis.graph.weighted(false);
+        vis.graph.moveNodeFn(moveNode);
+        vis.graph.dimensions.defaultNodeRadius = 15;
+        vis.graph.dimensions.nodeRadius = 15;
+        vis.graph.set(edgeArray, Array.from({ length: numVertices }, (v, k) => (k + 1)),coordsArray);
+        // vis.graph.edges = []
+        // Add special node a long way away for "wrapper"
+        vis.graph.addNode('W', 'W');
+        vis.graph.setNodePosition('W', 10, -900);
       },
-      [nodes],
+      [E, coords], 0
     );
 
-    const highlight = (vis, index, primaryColor = true) => {
-      if (primaryColor) {
-        vis.heap.colorNode(index + 1, HSColors.CURRENT_T);
-        vis.array.selectColor(index, colors.apple);
-      } else {
-        vis.heap.colorNode(index + 1, HSColors.CHILD_T);
-        vis.array.selectColor(index, colors.sky);
-      }
-    };
+    convexHull(coords, coords.length, E);
 
-    const unhighlight = (vis, index, primaryColor = true) => {
-      if (primaryColor) {
-        vis.heap.colorNode(index + 1, HSColors.HEAP_T);
-      } else {
-        vis.heap.colorNode(index + 1, HSColors.HEAP_T);
-      }
-     vis.array.selectColor(index, HSColors.HEAP_T);
-    };
+  }
+  , 
 
-    const swapAction = (b, n1, n2) => {
-      chunker.add(b, (vis, _n1, _n2) => {
-        vis.heap.swapNodes(_n1 + 1, _n2 + 1);
-        vis.array.swapElements(_n1, _n2);
-      }, [n1, n2]);
-    };
-
-    /** NOTE: In Lee's code, array index starts from 1
-     * however, in JS, array index naturally starts from 0
-     * index start from 0:
-     * parent = k , left child = 2*k + 1, right child = 2*k + 2
-     * index start from 1:
-     * parent = k , left child = 2*k, right child = 2*k + 1
-     */
-
-    // keep track of last node highlighted due to i (or k) so we can
-    // unhighlight it of buildHeap is collapsed
-    let lastiHighlight;
-
-    // build heap
-    // start from the last non-leaf node, work backwards to maintain the heap
-    let lastNonLeaf = Math.floor(n / 2) - 1;
-    for (let k = lastNonLeaf; k >= 0; k -= 1) {
-
-      let j;
-      const tmp = i;
-      i = k;
-
-      chunker.add(4, (vis, index1, index2, first, max) => {
-        vis.array.assignVariable('k', index1);
-        if (index1 === first) { // done the first time we reach here
-          for (let l = index1 + 1; l <= max; l++) { // color leaves
-            vis.heap.colorNode(l + 1, HSColors.HEAP_T);
-            vis.array.selectColor(l, HSColors.HEAP_T);
-          }
-        }
-        if (index2 != null) {
-          unhighlight(vis, index2);
-          vis.array.removeVariable('j');
-        }
-        highlight(vis, index1);
-      }, [i, tmp, lastNonLeaf, n - 1]);
-
-      chunker.add(6, (vis, index1, index2) => {
-        vis.array.assignVariable('i', index1);
-      }, [i, tmp]);
-
-      lastiHighlight = k;
-      heap = false;
-      chunker.add(7);
-
-      chunker.add(8);
-      // if current node's left child's index is greater than array length,
-      // then current node is a leaf
-      while (!(2 * i + 1 >= n || heap)) {
-        chunker.add(10);
-
-        // left child is smaller than right child
-        if (2 * i + 2 < n && A[2 * i + 1] < A[2 * i + 2]) {
-          j = 2 * i + 2;
-          chunker.add(11, (vis, index) => {
-            highlight(vis, index, false);
-            vis.array.assignVariable('j', index);
-          }, [j]);
-        } else {
-          j = 2 * i + 1;
-          chunker.add(13, (vis, index) => {
-            highlight(vis, index, false);
-            vis.array.assignVariable('j', index);
-          }, [j]);
-        }
-
-        chunker.add(14);
-        // parent is greater than largest child, so it is already a valid heap
-        if (A[i] >= A[j]) {
-          heap = true;
-          chunker.add(15, (vis, index, lastH, cur_k) => {
-            unhighlight(vis, index, false);
-            // possible last chunk in BuildHeap/DownHeapk
-            // remove i, j if !isDownHeapkExpanded
-            if (!isDownHeapkExpanded()) {
-              vis.array.removeVariable('i');
-              vis.array.removeVariable('j');
-            }
-            // remove k+highlighting if !isBuildHeapExpanded & last
-            // chunk of BuildHeap
-            if (!isBuildHeapExpanded() && cur_k === 0) {
-              vis.array.removeVariable('k');
-              if (lastH !== index)
-                unhighlight(vis, lastH);
-            }
-          }, [j, lastiHighlight, k]);
-        } else {
-          swap = A[i];
-          A[i] = A[j];
-          A[j] = swap;
-          swapAction(17, i, j);
-          lastiHighlight = j;
-          chunker.add(18, (vis, p, c, lastH, cur_k) => {
-            unhighlight(vis, p, false);
-            vis.array.assignVariable('i', c);
-            // remove i, j if !isDownHeapkExpanded
-            if (!isDownHeapkExpanded()) {
-              vis.array.removeVariable('i');
-              vis.array.removeVariable('j');
-            }
-            // remove k+highlighting if !isDownHeapkExpanded & last
-            // chunk of BuildHeap
-            if (!isBuildHeapExpanded() && cur_k === 0) {
-              vis.array.removeVariable('k');
-              if (lastH !== p)
-                unhighlight(vis, lastH);
-            }
-          }, [i, j, lastiHighlight, k]);
-          i = j;
-        }
-      }
-    }
-
-    // sort heap
-
-    while (n > 1) {
-      chunker.add(20, (vis, nVal, index) => {
-        // clear variables & show 'n'
-        vis.array.clearVariables();
-        vis.array.assignVariable('n', nVal - 1);
-        unhighlight(vis, index);
-      }, [n, i]);
-
-      let j;
-      swap = A[n - 1];
-      A[n - 1] = A[0];
-      A[0] = swap;
-
-      chunker.add(21, (vis, index) => {
-        highlight(vis, index);
-        highlight(vis, 0, false);
-      }, [n - 1]);
-      swapAction(21, 0, n - 1);
-
-      chunker.add(22, (vis, index) => {
-        unhighlight(vis, index, false);
-        vis.array.sorted(index);
-        vis.heap.removeNodeColor(index + 1);
-        vis.heap.sorted(index + 1);
-
-        vis.array.assignVariable('n', index - 1);
-      }, [n - 1]);
-      n -= 1;
-
-      i = 0;
-      chunker.add(24, (vis, index1, nVal) => {
-        vis.array.assignVariable('i', index1);
-      }, [i, n]);
-
-      chunker.add(25);
-      heap = false;
-
-      chunker.add(26, (vis, nVal) => {
-        // if (nVal === 0) vis.array.clearVariables();
-      }, [n]);
-      // need to maintain the heap after swap
-      while (!(2 * i + 1 >= n || heap)) {
-        chunker.add(28);
-
-        if (2 * i + 2 < n && A[2 * i + 1] < A[2 * i + 2]) {
-          j = 2 * i + 2;
-          chunker.add(29, (vis, index) => {
-            highlight(vis, index, false);
-            vis.array.assignVariable('j', index);
-          }, [j]);
-        } else {
-          j = 2 * i + 1;
-          chunker.add(31, (vis, index) => {
-            highlight(vis, index, false);
-            vis.array.assignVariable('j', index);
-          }, [j]);
-        }
-
-        chunker.add(32);
-        if (A[i] >= A[j]) {
-          heap = true;
-          chunker.add(33, (vis, index) => {
-            unhighlight(vis, index, false);
-          }, [j]);
-        } else {
-          swap = A[i];
-          A[i] = A[j];
-          A[j] = swap;
-          swapAction(35, i, j);
-          chunker.add(36, (vis, p, c) => {
-            unhighlight(vis, p, false);
-            vis.array.assignVariable('i', c);
-            // remove i, j if !isDownHeap1Expanded
-            if (!isDownHeap1Expanded()) {
-              vis.array.removeVariable('i');
-              vis.array.removeVariable('j');
-            }
-          }, [i, j]);
-          i = j;
-        }
-      }
-    }
-    chunker.add(37, (vis) => {
-      // Put in done state
-      vis.array.clearVariables();
-      // vis.array.deselect(0);
-      unhighlight(vis, 0, true);
-      vis.array.sorted(0);
-      vis.heap.removeNodeColor(1);
-      vis.heap.sorted(1);
-    });
-    // for test
-    return A;
-  },
 };

@@ -15,32 +15,31 @@ a:hover{
 
 -----
 
-Geeks for Geeks Link: [**Heap Sort**][G4GLink]
+Geeks for Geeks Link: [**Convex Hull Algorithms**][G4GLink]
 
 
-[G4GLink]: https://www.geeksforgeeks.org/heap-sort/
+[G4GLink]: https://www.geeksforgeeks.org/dsa/convex-hull-algorithm/
 
 ## Exercises/Exploration
 
-Many teaching resources say the best case for Heap sort is O(n log n).
-However, there is a case where it is O(n) - can you figure out what it is?
-The AIA progress bar allows you to see how many steps there are in the
-animation, which is a *very rough* guide to run-time. For the best case,
-can you determine a formula for the number of steps taken with 2n data
-items, demonstrating it is O(n)?
+What happens with this coding when there are multiple co-linear points
+on the hull? How could the coding be changed so the computed hull
+always contains the maximum/minimum number of points?
 
-Here we have presented the "bottom up" way of creating a heap from an
-unsorted array.  There is also a "top down" method where we start with
-just the first element of the array (which can be considered a heap)
-and repeatedly include the next element in the array until all array
-elements are included in the heap. At each stage some elements may need
-to be rearranged to ensure the heap condition is met (using an operation
-normally called *UpHeap*).  Work out (or look up) the details of this
-algorithm. Try to work out (or look up) the worst case time complexity
-for these two ways of creating a heap.
+The current coding starts by finding the left-most point (minimum x
+coordinate value). If there are multiple such points, the one with the
+minimum y coordinate value is chosen - what could go wrong if an
+arbitrary one of these points was chosen?  Similarly, when choosing the
+next point, there can be multiple points with the same minimal clockwise
+rotation from the current point. The current code picks the one with the
+smallest point/node number; what could happen if another choice was
+made?
 
-Heaps are an efficient way of implementing the *piority queue* abstract
-data type.  What operations does this ADT support and how can they
-be implemented using a heap?  What are priority queues useful for?
-Can you find some algorithms in AIA that use priority queues?
-
+Consider the cases early in the scan where the "next" node is to the
+right of the current node, **p**. The choice of next node will maximise the
+gradient of the line between the current and next nodes. Use this to
+derive a test to choose between nodes **i** and **q** for the next node.
+Does your test make sense in the later parts of the scan where the next
+node is to the left of **p**?
+How does your test compare with the test used in the algorithm? What
+could go wrong if a formula based on gradients was used?
