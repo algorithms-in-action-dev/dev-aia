@@ -15,11 +15,10 @@ import { withAlgorithmParams } from './helpers/urlHelpers' // Import this for UR
 import { URLContext } from '../../context/urlState';
 import { EXAMPLES } from './helpers/ErrorExampleStrings';
 
-
 const DEFAULT_ARRAY_GENERATOR = genRandNumList.bind(null, 12, 1, 99);
 const DEFAULT_ARR = DEFAULT_ARRAY_GENERATOR();
-const MERGE_SORT = 'Merge Sort (lists)';
-const MERGE_SORT_EXAMPLE = 'Please follow the example provided: 0,1,2,3,4';
+const MERGE_SORT = 'Heap Sort';
+
 const UNCHECKED = {
   random: false,
   sortedAsc: false,
@@ -55,8 +54,6 @@ function MergesortParam({ list }) {
     setNodes(array);
   }, [array]);
 
-  // XXX best case definitely not needed; could skip choice of cases
-  // function for choosing the type of input
   const handleChange = (e) => {
     switch (e.target.name) {
       case 'sortedAsc':
@@ -80,7 +77,6 @@ function MergesortParam({ list }) {
     }
 
     setQSCase({ ...UNCHECKED, [e.target.name]: true })
-
   }
 
   useEffect(
@@ -90,12 +86,11 @@ function MergesortParam({ list }) {
     [QSCase],
   );
 
-  // XXX some QSCase.bestCase etc junk best cleaned up
   return (
     <>
       <div className="form">
         <ListParam
-          name="msort_list_td"
+          name="hsortNewColors"
           buttonName="Reset"
           mode="sort"
           formClassName="formLeft"
@@ -128,7 +123,6 @@ function MergesortParam({ list }) {
         />
       </div>
       <span className="generalText">Choose input format: &nbsp;&nbsp;</span>
-      {/* create a checkbox for Random array elements */}
       <FormControlLabel
         control={
           <BlueRadio
@@ -162,17 +156,15 @@ function MergesortParam({ list }) {
         label="Sorted (descending)"
         className="checkbox"
       />
-      {/* render success/error message */}
       {message}
     </>
   )
 }
 
-// Define the prop types for URL Params
 MergesortParam.propTypes = {
   alg: PropTypes.string.isRequired,
   mode: PropTypes.string.isRequired,
   list: PropTypes.string.isRequired
 };
 
-export default withAlgorithmParams(MergesortParam)
+export default withAlgorithmParams(MergesortParam);

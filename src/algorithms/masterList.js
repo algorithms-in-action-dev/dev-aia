@@ -198,7 +198,7 @@ const algorithmMetadata = {
     name: 'Merge Sort (lists as arrays)',
     category: 'Sort',
     keywords: ['O(NlogN)', 'comparison', 'divide and conquer', 'stable'],
-    noDeploy: true,
+    noDeploy: false,
     explanationKey: 'msort_lista_td',
     paramKey: 'msort_lista_td',
     instructionsKey: 'msort_lista_td',
@@ -511,6 +511,23 @@ const algorithmMetadata = {
     "extraInfoKey": "grahamScan",
     "instructionsKey": "grahamScan"
   },
+
+	"hsortNewColors": {
+    "name": "Heap Sort Alternate Colour API",
+    "category": "Insert/Search",
+    "noDeploy": true,
+    "keywords": [],
+    "controller": {
+      "sort": "hsortNewColors"
+    },
+    "pseudocode": {
+      "sort": "hsortNewColors"
+    },
+    "paramKey": "hsortNewColors",
+    "explanationKey": "hsortNewColors",
+    "extraInfoKey": "hsortNewColors",
+    "instructionsKey": "hsortNewColors"
+  },
 };
 //_MASTER_LIST_END_
 
@@ -581,4 +598,7 @@ export const DeployedAlgorithmCategoryList = generateAlgorithmCategoryList(true)
 export const AlgorithmCategoryList = generateAlgorithmCategoryList(); 
 export const AlgorithmList = generateAlgorithmList();
 export const AlgorithmNum = generateAlgorithmList().length;
+export const visibleAlgorithmMetadata = Object.fromEntries(
+  Object.entries(algorithmMetadata).filter(([, v]) => !v.noDeploy)
+);
 
