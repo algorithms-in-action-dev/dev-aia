@@ -39,6 +39,7 @@ BST_Search(t, k)  // return subtree whose root has key k; or NotFound \\B Main
         search for k in the right subtree of t \\Ref recurseRight
     \\In}
 \\In}
+  // Done \\B Done
 \\Code}
 
 \\Code{
