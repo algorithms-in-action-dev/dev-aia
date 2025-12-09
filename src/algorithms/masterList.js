@@ -69,11 +69,11 @@
 //_MASTER_LIST_START_
 
 const algorithmMetadata = {
-  // === OLD INSERTION SORT (legacy) ===
+  // === INSERTION SORT (new, improved) ===
   isort: {
-    name: 'Insertion Sort (Legacy)',
+    name: 'Insertion Sort',
     category: 'Sort',
-    noDeploy: true,
+    noDeploy: false,
     keywords: ['O(N^2)', 'O(N)', 'adaptive', 'comparison', 'stable'],
     explanationKey: 'isort',
     paramKey: 'isort',
@@ -83,11 +83,11 @@ const algorithmMetadata = {
     controller: { sort: 'isort' },
   },
 
-  // === NEW INSERTION SORT ===
+  // === INSERTION SORT (new) ===
   insertionSort: {
-    name: 'Insertion Sort',
+    name: 'Insertion Sort (initial student version)',
     category: 'Sort',
-    noDeploy: false,
+    noDeploy: true,
     keywords: ['O(N^2)', 'O(N)', 'stable', 'adaptive', 'comparison'],
     explanationKey: 'insertionSortExp',
     paramKey: 'insertionSortParam',

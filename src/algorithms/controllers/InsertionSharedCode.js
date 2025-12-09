@@ -1064,7 +1064,7 @@ export function createTreeInsertionController(isAVLp = false) {
 
             // initial settings for the visualisation
             chunker.add(
-                'Initialise',
+                'Main',
                 (vis) => {
                     vis.graph.isWeighted = isAVL;
                     vis.graph.setFunctionName('Tree is Empty');
@@ -1078,6 +1078,10 @@ export function createTreeInsertionController(isAVLp = false) {
             );
 
             // initialise the first key insertion
+            // We now skip boxes etc even when recursion is expanded and
+            // don't highlight new node (otherwise an extra chunk is
+            // needed and there are already more than enough for such a
+            // conceptually simple case)
             chunker.add(
                 `Main`,
                 (vis, elements, k) => {
@@ -1085,6 +1089,7 @@ export function createTreeInsertionController(isAVLp = false) {
                     vis.graph.setFunctionName(`Insert: ${k}`);
                     vis.graph.setFunctionInsertText();
                     // initialise the tree with the first key with box
+/*
                     vis.graph.addNode(k, k);
                     if (isAVL) {
                         vis.graph.updateHeight(k, 1);
@@ -1099,6 +1104,7 @@ export function createTreeInsertionController(isAVLp = false) {
                     }
                     vis.graph.setPauseLayout(true);
                     vis.graph.removeNode(k);
+*/
                 },
                 [nodes, nodes[0], nodes[0].parentNode],
                 1
@@ -1110,14 +1116,25 @@ export function createTreeInsertionController(isAVLp = false) {
             // Insert the first key into the rectangle
             chunker.add('return n',
                 (vis, k) => {
-                    vis.graph.popRectStack();
-                    vis.graph.setPauseLayout(false);
+                    // vis.graph.popRectStack();
+                    // vis.graph.setPauseLayout(false);
                     vis.graph.addNode(k, k);
+                    // vis.graph.myColorNode(k, colors.NEW_N);
                     if (isAVL) {
                         vis.graph.updateHeight(k, 1);
                     }
-                    vis.graph.rectangle_size();
-                    popAfterReturnFlag = true;
+                    vis.graph.layoutAVL(k, true, false);
+                    // vis.graph.rectangle_size();
+                    // popAfterReturnFlag = true;
+                },
+                [nodes[0]],
+                1
+            );
+            chunker.add(
+                `Done`,
+                (vis, k) => {
+                    vis.graph.setFunctionName(`Inserted: ${k}`);
+                    vis.graph.setFunctionInsertText();
                 },
                 [nodes[0]],
                 1
