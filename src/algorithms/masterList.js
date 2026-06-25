@@ -448,7 +448,7 @@ const algorithmMetadata = {
   },
 
   gwrap: {
-    name: 'Gift Wrapping (convex hull)',
+    name: 'Convex Hull - Gift Wrapping',
     category: 'Geometric',
     noDeploy: false,
     explanationKey: 'gwrap',
@@ -459,8 +459,23 @@ const algorithmMetadata = {
     controller: { find: 'gwrap' },
   },
 
+  grahamScan: {
+    name: "Convex Hull - Graham Scan",
+    category: "Geometric",
+    noDeploy: false,
+    keywords: [
+      "O(NlogN)"
+    ],
+    controller: { "find": "grahamScan_find"},
+    pseudocode: { "find": "grahamScan_find"},
+    paramKey: "grahamScan",
+    explanationKey: "grahamScan",
+    extraInfoKey: "grahamScan",
+    instructionsKey: "grahamScan"
+  },
+
   convHullDC: {
-    name: "Convex Hull (divide and conquer)",
+    name: "Convex Hull - Divide and conquer",
     category: "Geometric",
     noDeploy: false,
     keywords: [
@@ -476,21 +491,6 @@ const algorithmMetadata = {
     controller: {
       "find": "convHullDCFind"
     }
-  },
-
-  grahamScan: {
-    name: "Graham Scan (convex hull)",
-    category: "Geometric",
-    noDeploy: false,
-    keywords: [
-      "O(NlogN)"
-    ],
-    controller: { "find": "grahamScan_find"},
-    pseudocode: { "find": "grahamScan_find"},
-    paramKey: "grahamScan",
-    explanationKey: "grahamScan",
-    extraInfoKey: "grahamScan",
-    instructionsKey: "grahamScan"
   },
 
   unionFind: {
@@ -569,6 +569,32 @@ const algorithmMetadata = {
     "explanationKey": "test_pseudocode",
     "extraInfoKey": "test_pseudocode",
     "instructionsKey": "test_pseudocode"
+  },
+
+	"floydwarsh": {
+    "name": "Floyd Warshall (all shortest paths)",
+    "category": "Graph",
+    "noDeploy": true,
+    "keywords": [
+      "directed",
+      "dynamic",
+      "programming",
+      "weighted",
+      "all-pairs",
+      "all",
+      "pairs",
+      "matrix"
+    ],
+    "controller": {
+      "tc": "floydwarsh"
+    },
+    "pseudocode": {
+      "tc": "floydwarsh"
+    },
+    "paramKey": "floydwarsh",
+    "explanationKey": "floydwarsh",
+    "extraInfoKey": "floydwarsh",
+    "instructionsKey": "floydwarsh"
   },
 };
 //_MASTER_LIST_END_
