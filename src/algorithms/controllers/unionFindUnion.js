@@ -83,7 +83,7 @@ export default {
         for (const node of N_GRAPH.slice(1)) {
           vis.tree.addSelfLoop(node);
         }
-        vis.tree.setSize(1.8);
+        vis.tree.setSize(1.8);  // more space for tree
         vis.tree.setZoom(1.3);
       },
       [[N_ARRAY, parentArr, rankArr]]
