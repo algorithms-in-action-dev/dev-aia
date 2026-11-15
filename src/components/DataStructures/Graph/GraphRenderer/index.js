@@ -459,6 +459,7 @@ class GraphRenderer extends Renderer {
   }
 
   renderData() {
+    const isTrie = this.props.data.presentation === 'trie';
     const { nodes, edges, isDirected, isWeighted, dimensions, text, functionInsertText, functionNode, functionBalance, rectangle, radius, tagInfo, newZoom, rectangles } =
       this.props.data;
     const {
@@ -488,6 +489,9 @@ class GraphRenderer extends Renderer {
     //   this.zoom = newZoom;
     //   this.refresh();
     // }
+    // Trie digit labels are drawn after every edge so a later edge
+    // cannot cover an earlier label.
+    const trieLabels = [];
 
     return (
       <svg
@@ -504,8 +508,12 @@ class GraphRenderer extends Renderer {
             refY="3"
             orient="auto"
           >
-            <path d="M0,0 L0,6 L6,3 L0,0" className={styles.arrow} />
+            <path
+              d="M0,0 L0,6 L6,3 L0,0"
+              fill="context-stroke"
+            />
           </marker>
+
           <marker
             id="markerArrowSelected"
             markerWidth="6"
@@ -516,9 +524,10 @@ class GraphRenderer extends Renderer {
           >
             <path
               d="M0,0 L0,6 L6,3 L0,0"
-              className={classes(styles.arrow, styles.selected)}
+              fill="context-stroke"
             />
           </marker>
+
           <marker
             id="markerArrowVisited"
             markerWidth="6"
@@ -529,9 +538,10 @@ class GraphRenderer extends Renderer {
           >
             <path
               d="M0,0 L0,6 L6,3 L0,0"
-              className={classes(styles.arrow, styles.visited)}
+              fill="context-stroke"
             />
           </marker>
+
           <marker
             id="markerArrowVisited1"
             markerWidth="6"
@@ -542,9 +552,10 @@ class GraphRenderer extends Renderer {
           >
             <path
               d="M0,0 L0,6 L6,3 L0,0"
-              className={classes(styles.arrow, styles.visited1)}
+              fill="context-stroke"
             />
           </marker>
+
           <marker
             id="markerArrowVisited2"
             markerWidth="6"
@@ -555,9 +566,10 @@ class GraphRenderer extends Renderer {
           >
             <path
               d="M0,0 L0,6 L6,3 L0,0"
-              className={classes(styles.arrow, styles.visited2)}
+              fill="context-stroke"
             />
           </marker>
+
           <marker
             id="markerArrowVisited3"
             markerWidth="6"
@@ -568,9 +580,10 @@ class GraphRenderer extends Renderer {
           >
             <path
               d="M0,0 L0,6 L6,3 L0,0"
-              className={classes(styles.arrow, styles.visited3)}
+              fill="context-stroke"
             />
           </marker>
+
           <marker
             id="markerArrowVisited4"
             markerWidth="6"
@@ -581,7 +594,7 @@ class GraphRenderer extends Renderer {
           >
             <path
               d="M0,0 L0,6 L6,3 L0,0"
-              className={classes(styles.arrow, styles.visited4)}
+              fill="context-stroke"
             />
           </marker>
         </defs>
@@ -591,7 +604,7 @@ class GraphRenderer extends Renderer {
 
         {/* Dynamically adjust the node size */}
         <g
-          className={classes(styles.graph)}
+          className={classes(styles.graph, isTrie && styles.trie)}
           style={radius != null ? { '--circle-radius': `${radius}px` } : { '--circle-radius': `${nodeRadius}px` }}
         >
 
@@ -623,10 +636,14 @@ class GraphRenderer extends Renderer {
               if (!sourceNode || !targetNode) return undefined;
               const { x: sx, y: sy } = sourceNode;
               let { x: ex, y: ey } = targetNode;
-              const mx = (sx + ex) / 2;
-              const my = (sy + ey) / 2;
               const dx = ex - sx;
               const dy = ey - sy;
+              // Trie digit labels sit on their own edge, past the midpoint
+              // where sibling edges in a wide fan have spread apart; the
+              // halo in the stylesheet cuts the edges beneath them.
+              const labelT = isTrie ? 0.6 : 0.5;
+              const labelX = sx + dx * labelT;
+              const labelY = sy + dy * labelT;
               if (isDirected) {
                 let length = Math.sqrt(dx * dx + dy * dy);
                 if (length !== 0) {
@@ -648,21 +665,37 @@ class GraphRenderer extends Renderer {
                 pathSvg = `M${sx},${sy} L${ex},${ey}`;
               }
               // console.log(sx,sy,ex,ey,cx,cy);
+              const edgeClass = classes(
+                styles.edge,
+                targetNode.sorted && styles.sorted,
+                selectedCount && styles.selected,
+                !selectedCount && visitedCount && styles.visited,
+                visitedCount0 && styles.visited,
+                visitedCount1 && styles.visited1,
+                visitedCount2 && styles.visited2,
+                visitedCount3 && styles.visited3,
+                visitedCount4 && styles.visited4
+              );
+              const label = isWeighted && (
+                <g transform={`translate(${labelX},${labelY})`}>
+                  <text
+                    className={styles.weight}
+                    transform="rotate(0)"
+                    y={isTrie ? 0 : -edgeWeightGap}
+                  >
+                    {this.toString(weight)}
+                  </text>
+                </g>
+              );
+              if (isTrie && label) {
+                trieLabels.push(
+                  <g className={edgeClass} key={`${source}-${target}-label`}>
+                    {label}
+                  </g>
+                );
+              }
               return (
-                <g
-                  className={classes(
-                    styles.edge,
-                    targetNode.sorted && styles.sorted,
-                    selectedCount && styles.selected,
-                    !selectedCount && visitedCount && styles.visited,
-                    visitedCount0 && styles.visited,
-                    visitedCount1 && styles.visited1,
-                    visitedCount2 && styles.visited2,
-                    visitedCount3 && styles.visited3,
-                    visitedCount4 && styles.visited4
-                  )}
-                  key={`${source}-${target}`}
-                >
+                <g className={edgeClass} key={`${source}-${target}`}>
                   <path
                     d={pathSvg}
                     style={{
@@ -674,20 +707,11 @@ class GraphRenderer extends Renderer {
                       isDirected && styles.directed
                     )}
                   />
-                  {isWeighted && (
-                    <g transform={`translate(${mx},${my})`}>
-                      <text
-                        className={styles.weight}
-                        transform="rotate(0)"
-                        y={-edgeWeightGap}
-                      >
-                        {this.toString(weight)}
-                      </text>
-                    </g>
-                  )}
+                  {!isTrie && label}
                 </g>
               );
             })}
+          {trieLabels}
 
           {/* Select rectangle */}
           <g>
@@ -826,6 +850,7 @@ class GraphRenderer extends Renderer {
                 transition={{ duration: 1 }}
                 className={classes(
                   styles.node,
+                  isTrie && node.isTerminal && styles.terminal,
                   selectNode && styles.selected,
                   sorted && styles.sorted,
 
@@ -869,7 +894,11 @@ class GraphRenderer extends Renderer {
                   r={nodeRadius}
                 />
 
-                <text className={classes(styles.id, style && style.textStyle)}>
+                <text className={classes(styles.id, style && style.textStyle)}
+                  style={isTrie
+                    ? { fontSize: Math.min(24, 72 / Math.max(String(value).length, 1)) }
+                    : undefined}
+                >
                   {value}
                 </text>
                 {isWeighted && (
@@ -905,7 +934,11 @@ class GraphRenderer extends Renderer {
                 </text>
 
                 {isPointer && (
-                  <text className={styles.weight} x={nodeRadius + nodeWeightGap}>
+                  <text
+                    className={styles.pointer}
+                    x={nodeRadius + nodeWeightGap}
+                    y={-nodeRadius / 2}
+                  >
                     {this.toString(pointerText)}
                   </text>
                 )}

@@ -14,10 +14,22 @@ class MaskTracer extends Tracer {
     this.maskData = 0;
     this.highlight = [];
     this.addBase4 = false;
+    this.radix = 2;
+    this.pointerStatus = null;
+  }
+
+  setPointerStatus(status) {
+    this.pointerStatus = status;
   }
 
   setAddBase4(b) {
     this.addBase4 = b;
+  }
+
+  // Overlay only: 4 also shows base 4 digits, two bits per digit;
+  // 10 shows the key's decimal digits instead of bits.
+  setRadix(radix) {
+    this.radix = radix;
   }
 
   setMaxBits(bits) {
